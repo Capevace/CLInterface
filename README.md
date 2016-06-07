@@ -9,7 +9,7 @@ var clinterface = require('clinterface')
 
 Then, initialize it using the following two arguments:
 ```javascript
-clinterface(<Commands>, <Options (optional)>)
+var cli = new clinterface(<Commands>, <Options (optional)>)
 ```
 
 ## Commands
@@ -46,12 +46,21 @@ $ exit
 Lists all the available commands.
 ```bash
 $ help
+⌨️  Available commands:
+   help  Shows all available commands.
+   exit  Exits the process with code 0.
+
+$ help exit
+exit
+   Exits the process with code 0.
 ```
 
 ## Options
 You can pass the option parameter. You can modify these parameters:
 ```javascript
 {
-  available: '⌨️  Available commands', //
+  available: '⌨️  Available commands', // String shown when using help command.
+  prefix: '🤖 > ', // Prompt indicator,
+  bye: '🖖  Bye bye!' // Message shown when closing application.
 }
 ```
