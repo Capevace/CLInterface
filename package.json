@@ -1,6 +1,6 @@
 {
   "name": "clinterface",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A very simple and small tool to have a command-line-interface usable at runtime.",
   "main": "index.js",
   "keywords": [
@@ -24,11 +24,11 @@
   "author": {
     "name": "Lukas von Mateffy (@Capevace)",
     "email": "capevace@gmail.com",
-    "url" : "https://github.com/Capevace"
+    "url": "https://github.com/Capevace"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/Capevace/clinterface.git"
+    "type": "git",
+    "url": "https://github.com/Capevace/clinterface.git"
   },
   "homepage": "https://github.com/Capevace/clinterface",
   "license": "MIT"
