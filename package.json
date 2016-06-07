@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "A very simple and small tool to have a command-line-interface usable at runtime.",
   "main": "index.js",
-  "scripts": {
-    "build": "babel index.es6 --out-file index.js"
-  },
   "keywords": [
     "cli",
     "command",
@@ -34,8 +31,5 @@
     "url" : "https://github.com/Capevace/clinterface.git"
   },
   "homepage": "https://github.com/Capevace/clinterface",
-  "license": "MIT",
-  "dependencies": {
-    "babel": "^6.5.2"
-  }
+  "license": "MIT"
 }
