@@ -72,7 +72,7 @@ function clinterface(commands, options) {
     method: function method(args) {
       _this.cmd.clearLine();
       _this.cmd.question("Confirm exit (y/n): ", function (answer) {
-        return answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i) ? process.exit(0) : this.cmd.output.write(this.options.prefix || '🤖 > ');
+        return answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i) ? process.exit(0) : _this.cmd.output.write(_this.options.prefix || '🤖 > ');
       });
     }
   };

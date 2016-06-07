@@ -63,7 +63,7 @@ class clinterface {
       description: 'Exits the process with code 0.',
       method: args => {
         this.cmd.clearLine();
-        this.cmd.question("Confirm exit (y/n): ", function(answer) {
+        this.cmd.question("Confirm exit (y/n): ", (answer) => {
             return (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) ? process.exit(0) : this.cmd.output.write(this.options.prefix || '🤖 > ');
         });
       }
