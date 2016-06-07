@@ -64,7 +64,7 @@ class clinterface {
       method: args => {
         this.cmd.clearLine();
         this.cmd.question("Confirm exit (y/n): ", function(answer) {
-            return (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) ? process.exit(0) : rl.output.write(this.options.prefix || '🤖 > ');
+            return (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) ? process.exit(0) : this.cmd.output.write(this.options.prefix || '🤖 > ');
         });
       }
     }
