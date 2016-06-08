@@ -1,11 +1,11 @@
 {
   "name": "clinterface",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A very simple and small tool to have a command-line-interface usable at runtime.",
   "main": "index.js",
   "scripts": {
     "build": "babel index.es6 --out-file index.js",
-    "test" : "node test.js"
+    "test": "node test.js"
   },
   "keywords": [
     "cli",
