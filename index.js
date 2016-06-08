@@ -62,6 +62,7 @@ var clinterface = function () {
     // Create help command
     this.commands.help = {
       description: 'Shows all available commands.',
+      usage: 'help <command>',
       method: function method(args) {
         if (args.length > 1 && args[1]) {
           // If arg for command wanted is given.
@@ -71,7 +72,9 @@ var clinterface = function () {
 
             // Show command info
             var command = _this.commands[args[1]];
-            _this.echo(args[1] + '\n   ' + command.description);
+            _this.echo(args[1] + '    ' + command.description);
+
+            if (command.usage) _this.echo(' '.repeat(args[1].length) + '    Usage: ' + command.usage);
           } else {
             // If argument is not in commands
             _this.echo('Command \'' + args[1] + '\' was not found. Try \'help\' for a list of commands.\n');
@@ -101,6 +104,7 @@ var clinterface = function () {
     // Create exit command
     this.commands.exit = {
       description: 'Exits the process with code 0.',
+      usage: 'exit',
       method: function method(args) {
         // Get confirmation on exit
         _this.cmd.clearLine();
@@ -119,40 +123,55 @@ var clinterface = function () {
     // Create log command
     this.commands.log = {
       description: 'Logs info to the terminal window.',
+      usage: 'log <message>',
       method: function method(args) {
-        _this.log(args.join(' '));
+        _this.log(args.filter(function (arg, index) {
+          return index != 0;
+        }).join(' '));
       }
     };
 
     // Create warn command
     this.commands.warn = {
       description: 'Logs warning to the terminal window.',
+      usage: 'warn <message>',
       method: function method(args) {
-        _this.warn(args.join(' '));
+        _this.warn(args.filter(function (arg, index) {
+          return index != 0;
+        }).join(' '));
       }
     };
 
     // Create success command
     this.commands.success = {
       description: 'Logs success message to the terminal window.',
+      usage: 'success <message>',
       method: function method(args) {
-        _this.success(args.join(' '));
+        _this.success(args.filter(function (arg, index) {
+          return index != 0;
+        }).join(' '));
       }
     };
 
     // Create error command
     this.commands.error = {
       description: 'Logs error to the terminal window.',
+      usage: 'error <message>',
       method: function method(args) {
-        _this.error(args.join(' '));
+        _this.error(args.filter(function (arg, index) {
+          return index != 0;
+        }).join(' '));
       }
     };
 
     // Create error command
     this.commands.echo = {
       description: 'Writes text to the terminal window.',
+      usage: 'echo <message>',
       method: function method(args) {
-        _this.echo(args.join(' '));
+        _this.echo(args.filter(function (arg, index) {
+          return index != 0;
+        }).join(' '));
       }
     };
 

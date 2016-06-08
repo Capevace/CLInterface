@@ -52,6 +52,7 @@ class clinterface {
     // Create help command
     this.commands.help = {
       description: 'Shows all available commands.',
+      usage: 'help <command>',
       method: args => {
         if (args.length > 1 && args[1]) { // If arg for command wanted is given.
 
@@ -59,7 +60,10 @@ class clinterface {
 
             // Show command info
             const command = this.commands[args[1]]
-            this.echo(`${args[1]}\n   ${command.description}`)
+            this.echo(`${args[1]}    ${command.description}`)
+
+            if (command.usage)
+              this.echo(`${' '.repeat(args[1].length)}    Usage: ${command.usage}`)
 
           } else { // If argument is not in commands
             this.echo(`Command '${args[1]}' was not found. Try 'help' for a list of commands.\n`);
@@ -87,6 +91,7 @@ class clinterface {
     // Create exit command
     this.commands.exit = {
       description: 'Exits the process with code 0.',
+      usage: 'exit',
       method: args => {
         // Get confirmation on exit
         this.cmd.clearLine();
@@ -105,40 +110,45 @@ class clinterface {
     // Create log command
     this.commands.log = {
       description: 'Logs info to the terminal window.',
+      usage: 'log <message>',
       method: args => {
-        this.log(args.join(' '))
+        this.log(args.filter((arg, index) => index != 0).join(' '))
       }
     }
 
     // Create warn command
     this.commands.warn = {
       description: 'Logs warning to the terminal window.',
+      usage: 'warn <message>',
       method: args => {
-        this.warn(args.join(' '))
+        this.warn(args.filter((arg, index) => index != 0).join(' '))
       }
     }
 
     // Create success command
     this.commands.success = {
       description: 'Logs success message to the terminal window.',
+      usage: 'success <message>',
       method: args => {
-        this.success(args.join(' '))
+        this.success(args.filter((arg, index) => index != 0).join(' '))
       }
     }
 
     // Create error command
     this.commands.error = {
       description: 'Logs error to the terminal window.',
+      usage: 'error <message>',
       method: args => {
-        this.error(args.join(' '))
+        this.error(args.filter((arg, index) => index != 0).join(' '))
       }
     }
 
     // Create error command
     this.commands.echo = {
       description: 'Writes text to the terminal window.',
+      usage: 'echo <message>',
       method: args => {
-        this.echo(args.join(' '))
+        this.echo(args.filter((arg, index) => index != 0).join(' '))
       }
     }
 

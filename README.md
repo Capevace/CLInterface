@@ -18,16 +18,11 @@ The command parameter has to look like this:
 {
   commandName: {
     description: 'Simple description of command',
+    usage: 'commandName <name> <password>',
     method: function (args) {
       // Do your call handling here
     }
-  },
-  test: {
-    description: 'Simple test',
-    method: function (args) {
-      console.log('Hello world!');
-    }
-  },
+  }
 }
 ```
 
