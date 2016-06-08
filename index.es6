@@ -27,7 +27,12 @@ class clinterface {
     this.options = Object.assign({
       available: '⌨️  Available commands:',
       bye: '🖖  Bye bye!',
-      prefix: '🤖 > '
+      prefix: '🤖 > ',
+      errorPrefix: '[Clinterface ⚡️ ]',
+      successPrefix: '[Clinterface 🎉 ]',
+      warningPrefix: '[Clinterface 🕵 ]',
+      logPrefix: '[Clinterface 📝 ]',
+      hideRegisterLogs: true
     }, options || {})
 
     // Create readline interface
@@ -39,6 +44,11 @@ class clinterface {
     // Get commands
     this.commands = commands || {}
 
+    // Show register messages for all new commands
+    Object.keys(this.commands).forEach(name => {
+      this.success(`Command ${name} was registered.`)
+    })
+
     // Create help command
     this.commands.help = {
       description: 'Shows all available commands.',
@@ -49,22 +59,26 @@ class clinterface {
 
             // Show command info
             const command = this.commands[args[1]]
-            console.log(`${args[1]}\n   ${command.description}`)
+            this.echo(`${args[1]}\n   ${command.description}`)
 
           } else { // If argument is not in commands
-            console.error(`Command '${args[1]}' was not found. Try 'help' for a list of commands.\n`);
+            this.echo(`Command '${args[1]}' was not found. Try 'help' for a list of commands.\n`);
           }
         } else { // If no arg for command is given
 
           // Show available commands text
-          console.log(this.options.available)
+          this.echo(this.options.available)
+
+          let biggestLength = Object.keys(this.commands)
+            .reduce((length, key) => ((key.length > length) ? key.length : length), 0)
 
           // Loop through all commands
           for (let commandKey in this.commands) {
+            const spaces = ' '.repeat(Math.abs(biggestLength - commandKey.length))
 
             // Show command info
             const help = this.commands[commandKey].description || 'No description specified.'
-            console.log('   ' + commandKey.toString() + '  ' + help)
+            this.echo(`    ${commandKey.toString()} ${spaces} ${help}`)
           }
         }
       }
@@ -78,12 +92,53 @@ class clinterface {
         this.cmd.clearLine();
         this.cmd.question("Confirm exit (y/n): ", (answer) => {
           if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
-            console.log(this.options.bye)
+            this.echo(this.options.bye)
             process.exit(0)
           } else {
             this.cmd.output.write(this.options.prefix)
           }
         });
+      }
+    }
+
+    // Logging commands
+    // Create log command
+    this.commands.log = {
+      description: 'Logs info to the terminal window.',
+      method: args => {
+        this.log(args.join(' '))
+      }
+    }
+
+    // Create warn command
+    this.commands.warn = {
+      description: 'Logs warning to the terminal window.',
+      method: args => {
+        this.warn(args.join(' '))
+      }
+    }
+
+    // Create success command
+    this.commands.success = {
+      description: 'Logs success message to the terminal window.',
+      method: args => {
+        this.success(args.join(' '))
+      }
+    }
+
+    // Create error command
+    this.commands.error = {
+      description: 'Logs error to the terminal window.',
+      method: args => {
+        this.error(args.join(' '))
+      }
+    }
+
+    // Create error command
+    this.commands.echo = {
+      description: 'Writes text to the terminal window.',
+      method: args => {
+        this.echo(args.join(' '))
       }
     }
 
@@ -96,9 +151,10 @@ class clinterface {
       const args = line.replace(/\r?\n|\r/g, '').split(' ')
 
       if (args.length > 0 && args[0] in this.commands) { // If arguments arent empty and first argument is valid command
-        this.commands[args[0]].method(args)
+        if (this.commands[args[0]].method)
+          this.commands[args[0]].method(args)
       } else { // Command not found
-        console.error(`Command '${args[0]}' was not found. Try 'help' for a list of commands.\n`);
+        this.echo(`\x1b[31mCommand '${args[0]}' was not found. Try 'help' for a list of commands.\n\x1b[0m`);
       }
 
       this.cmd.prompt()
@@ -106,7 +162,7 @@ class clinterface {
 
     // On close, show exit message
     this.cmd.on('close', () => {
-      console.log(this.options.bye)
+      this.echo(this.options.bye)
       return process.exit(0);
     })
 
@@ -136,6 +192,39 @@ class clinterface {
     console.error = function() {
       privateLog("error", arguments);
     };
+  }
+
+  command (name, command) {
+    if (name in this.commands) {
+      this.warn(`Command ${name} is already in use.`)
+    } else {
+      this.commands[name] = command
+
+      if (!this.hideRegisterLogs)
+        this.success(`Command ${name} was registered.`)
+    }
+
+    return this
+  }
+
+  echo (...args) {
+    console.log(args.join(' '))
+  }
+
+  log (...args) {
+    console.log(`${this.options.logPrefix}`, args.join(' '))
+  }
+
+  warn (...args) {
+    console.log(`\x1b[33m${this.options.warningPrefix}`, args.join(' '), '\x1b[0m')
+  }
+
+  success (...args) {
+    console.warn(`\x1b[32m${this.options.successPrefix}`, args.join(' '), '\x1b[0m')
+  }
+
+  error (...args) {
+    console.error(`\x1b[31m${this.options.errorPrefix}`, args.join(' '), '\x1b[0m')
   }
 }
 

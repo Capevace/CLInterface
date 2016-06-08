@@ -30,8 +30,17 @@ var cli = new clinterface(
     }
   },
   {
-    available: 'My commands:',
-    prefix: '💙 > ',
-    bye: 'Goodbye old friend...'
+    // available: 'My commands:',
+    // prefix: '💙 > ',
+    // bye: 'Goodbye old friend...',
+    // hideRegisterLogs: true
+  }
+).command(
+  'lol',
+  {
+    description: 'A lol command!',
+    method: function (args) {
+      console.log('Lol!');
+    }
   }
 )

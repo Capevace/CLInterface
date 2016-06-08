@@ -1,5 +1,7 @@
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /*
@@ -19,136 +21,255 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 var readline = require('readline');
 var util = require('util');
 
-var clinterface =
+var clinterface = function () {
 
-// Command:
-// {
-//   method: function (args),
-//   description: string
-// }
+  // Command:
+  // {
+  //   method: function (args),
+  //   description: string
+  // }
 
-function clinterface(commands, options) {
-  var _this = this;
+  function clinterface(commands, options) {
+    var _this = this;
 
-  _classCallCheck(this, clinterface);
+    _classCallCheck(this, clinterface);
 
-  this.options = Object.assign({
-    available: '⌨️  Available commands:',
-    bye: '🖖  Bye bye!',
-    prefix: '🤖 > '
-  }, options || {});
+    this.options = Object.assign({
+      available: '⌨️  Available commands:',
+      bye: '🖖  Bye bye!',
+      prefix: '🤖 > ',
+      errorPrefix: '[Clinterface ⚡️ ]',
+      successPrefix: '[Clinterface 🎉 ]',
+      warningPrefix: '[Clinterface 🕵 ]',
+      logPrefix: '[Clinterface 📝 ]',
+      hideRegisterLogs: true
+    }, options || {});
 
-  // Create readline interface
-  this.cmd = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
+    // Create readline interface
+    this.cmd = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
 
-  // Get commands
-  this.commands = commands || {};
+    // Get commands
+    this.commands = commands || {};
 
-  // Create help command
-  this.commands.help = {
-    description: 'Shows all available commands.',
-    method: function method(args) {
-      if (args.length > 1 && args[1]) {
-        // If arg for command wanted is given.
+    // Show register messages for all new commands
+    Object.keys(this.commands).forEach(function (name) {
+      _this.success('Command ' + name + ' was registered.');
+    });
 
-        if (args[1] in _this.commands) {
-          // If argument is in commands
+    // Create help command
+    this.commands.help = {
+      description: 'Shows all available commands.',
+      method: function method(args) {
+        if (args.length > 1 && args[1]) {
+          // If arg for command wanted is given.
 
-          // Show command info
-          var command = _this.commands[args[1]];
-          console.log(args[1] + '\n   ' + command.description);
+          if (args[1] in _this.commands) {
+            // If argument is in commands
+
+            // Show command info
+            var command = _this.commands[args[1]];
+            _this.echo(args[1] + '\n   ' + command.description);
+          } else {
+            // If argument is not in commands
+            _this.echo('Command \'' + args[1] + '\' was not found. Try \'help\' for a list of commands.\n');
+          }
         } else {
-          // If argument is not in commands
-          console.error('Command \'' + args[1] + '\' was not found. Try \'help\' for a list of commands.\n');
-        }
-      } else {
-        // If no arg for command is given
+          // If no arg for command is given
 
-        // Show available commands text
-        console.log(_this.options.available);
+          // Show available commands text
+          _this.echo(_this.options.available);
 
-        // Loop through all commands
-        for (var commandKey in _this.commands) {
+          var biggestLength = Object.keys(_this.commands).reduce(function (length, key) {
+            return key.length > length ? key.length : length;
+          }, 0);
 
-          // Show command info
-          var help = _this.commands[commandKey].description || 'No description specified.';
-          console.log('   ' + commandKey.toString() + '  ' + help);
+          // Loop through all commands
+          for (var commandKey in _this.commands) {
+            var spaces = ' '.repeat(Math.abs(biggestLength - commandKey.length));
+
+            // Show command info
+            var help = _this.commands[commandKey].description || 'No description specified.';
+            _this.echo('    ' + commandKey.toString() + ' ' + spaces + ' ' + help);
+          }
         }
       }
+    };
+
+    // Create exit command
+    this.commands.exit = {
+      description: 'Exits the process with code 0.',
+      method: function method(args) {
+        // Get confirmation on exit
+        _this.cmd.clearLine();
+        _this.cmd.question("Confirm exit (y/n): ", function (answer) {
+          if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
+            _this.echo(_this.options.bye);
+            process.exit(0);
+          } else {
+            _this.cmd.output.write(_this.options.prefix);
+          }
+        });
+      }
+    };
+
+    // Logging commands
+    // Create log command
+    this.commands.log = {
+      description: 'Logs info to the terminal window.',
+      method: function method(args) {
+        _this.log(args.join(' '));
+      }
+    };
+
+    // Create warn command
+    this.commands.warn = {
+      description: 'Logs warning to the terminal window.',
+      method: function method(args) {
+        _this.warn(args.join(' '));
+      }
+    };
+
+    // Create success command
+    this.commands.success = {
+      description: 'Logs success message to the terminal window.',
+      method: function method(args) {
+        _this.success(args.join(' '));
+      }
+    };
+
+    // Create error command
+    this.commands.error = {
+      description: 'Logs error to the terminal window.',
+      method: function method(args) {
+        _this.error(args.join(' '));
+      }
+    };
+
+    // Create error command
+    this.commands.echo = {
+      description: 'Writes text to the terminal window.',
+      method: function method(args) {
+        _this.echo(args.join(' '));
+      }
+    };
+
+    // Set prompt
+    this.cmd.setPrompt(this.options.prefix, 2);
+
+    // Called on line
+    this.cmd.on('line', function (line) {
+      // Remove linebreaks at end of commands and then split into arguments
+      var args = line.replace(/\r?\n|\r/g, '').split(' ');
+
+      if (args.length > 0 && args[0] in _this.commands) {
+        // If arguments arent empty and first argument is valid command
+        if (_this.commands[args[0]].method) _this.commands[args[0]].method(args);
+      } else {
+        // Command not found
+        _this.echo('\u001b[31mCommand \'' + args[0] + '\' was not found. Try \'help\' for a list of commands.\n\u001b[0m');
+      }
+
+      _this.cmd.prompt();
+    });
+
+    // On close, show exit message
+    this.cmd.on('close', function () {
+      _this.echo(_this.options.bye);
+      return process.exit(0);
+    });
+
+    // Display prompt
+    this.cmd.prompt();
+
+    // LEGACY: works, dont touch... This function keeps the prompt at the bottom of the terminal window
+    var privateLog = function privateLog(type, args) {
+      var t = Math.ceil((_this.cmd.line.length + 3) / process.stdout.columns);
+      var text = util.format.apply(console, args);
+      _this.cmd.output.write("\n\x1B[" + t + "A\x1B[0J");
+      _this.cmd.output.write(text + "\n");
+      _this.cmd.output.write(Array(t).join("\n\x1B[E"));
+      _this.cmd._refreshLine();
+    };
+
+    // Write all log functions to use privateLog
+    console.log = function () {
+      privateLog("log", arguments);
+    };
+    console.warn = function () {
+      privateLog("warn", arguments);
+    };
+    console.info = function () {
+      privateLog("info", arguments);
+    };
+    console.error = function () {
+      privateLog("error", arguments);
+    };
+  }
+
+  _createClass(clinterface, [{
+    key: 'command',
+    value: function command(name, _command) {
+      if (name in this.commands) {
+        this.warn('Command ' + name + ' is already in use.');
+      } else {
+        this.commands[name] = _command;
+
+        if (!this.hideRegisterLogs) this.success('Command ' + name + ' was registered.');
+      }
+
+      return this;
     }
-  };
+  }, {
+    key: 'echo',
+    value: function echo() {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
 
-  // Create exit command
-  this.commands.exit = {
-    description: 'Exits the process with code 0.',
-    method: function method(args) {
-      // Get confirmation on exit
-      _this.cmd.clearLine();
-      _this.cmd.question("Confirm exit (y/n): ", function (answer) {
-        if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
-          console.log(_this.options.bye);
-          process.exit(0);
-        } else {
-          _this.cmd.output.write(_this.options.prefix);
-        }
-      });
+      console.log(args.join(' '));
     }
-  };
+  }, {
+    key: 'log',
+    value: function log() {
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
 
-  // Set prompt
-  this.cmd.setPrompt(this.options.prefix, 2);
-
-  // Called on line
-  this.cmd.on('line', function (line) {
-    // Remove linebreaks at end of commands and then split into arguments
-    var args = line.replace(/\r?\n|\r/g, '').split(' ');
-
-    if (args.length > 0 && args[0] in _this.commands) {
-      // If arguments arent empty and first argument is valid command
-      _this.commands[args[0]].method(args);
-    } else {
-      // Command not found
-      console.error('Command \'' + args[0] + '\' was not found. Try \'help\' for a list of commands.\n');
+      console.log('' + this.options.logPrefix, args.join(' '));
     }
+  }, {
+    key: 'warn',
+    value: function warn() {
+      for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        args[_key3] = arguments[_key3];
+      }
 
-    _this.cmd.prompt();
-  });
+      console.log('\u001b[33m' + this.options.warningPrefix, args.join(' '), '\x1b[0m');
+    }
+  }, {
+    key: 'success',
+    value: function success() {
+      for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+        args[_key4] = arguments[_key4];
+      }
 
-  // On close, show exit message
-  this.cmd.on('close', function () {
-    console.log(_this.options.bye);
-    return process.exit(0);
-  });
+      console.warn('\u001b[32m' + this.options.successPrefix, args.join(' '), '\x1b[0m');
+    }
+  }, {
+    key: 'error',
+    value: function error() {
+      for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+        args[_key5] = arguments[_key5];
+      }
 
-  // Display prompt
-  this.cmd.prompt();
+      console.error('\u001b[31m' + this.options.errorPrefix, args.join(' '), '\x1b[0m');
+    }
+  }]);
 
-  // LEGACY: works, dont touch... This function keeps the prompt at the bottom of the terminal window
-  var privateLog = function privateLog(type, args) {
-    var t = Math.ceil((_this.cmd.line.length + 3) / process.stdout.columns);
-    var text = util.format.apply(console, args);
-    _this.cmd.output.write("\n\x1B[" + t + "A\x1B[0J");
-    _this.cmd.output.write(text + "\n");
-    _this.cmd.output.write(Array(t).join("\n\x1B[E"));
-    _this.cmd._refreshLine();
-  };
-
-  // Write all log functions to use privateLog
-  console.log = function () {
-    privateLog("log", arguments);
-  };
-  console.warn = function () {
-    privateLog("warn", arguments);
-  };
-  console.info = function () {
-    privateLog("info", arguments);
-  };
-  console.error = function () {
-    privateLog("error", arguments);
-  };
-};
+  return clinterface;
+}();
 
 exports = module.exports = clinterface;

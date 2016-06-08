@@ -1,2 +1,10 @@
+Version 1.1.0
+ - ADDED .command() method for different way to register commands (also to add them later in runtime).
+ - ADDED .log(), .warn(), .success(), .error() and .echo() methods for better internal logging.
+ - ADDED Options for log method prefixes
+ - ADDED log, warn, succes, error and echo CLI commands for better standard commands.
+ - ADDED Log message coloring
+ - FIXED spacing in help command.
+
 Version 1.0.0
  - Initial features
