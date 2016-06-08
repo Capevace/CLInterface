@@ -4,7 +4,8 @@
   "description": "A very simple and small tool to have a command-line-interface usable at runtime.",
   "main": "index.js",
   "scripts": {
-    "build": "babel index.es6 --out-file index.js"
+    "build": "babel index.es6 --out-file index.js",
+    "test" : "node test.js"
   },
   "keywords": [
     "cli",
@@ -37,6 +38,7 @@
   "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.9.0",
-    "babel-preset-es2015": "^6.9.0"
+    "babel-preset-es2015": "^6.9.0",
+    "colors": "^1.1.2"
   }
 }

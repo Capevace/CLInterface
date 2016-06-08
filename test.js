@@ -1,4 +1,5 @@
 var clinterface = require('./')
+var colors = require('colors');
 
 var cli = new clinterface(
   {
@@ -8,17 +9,23 @@ var cli = new clinterface(
         console.log('Your arguments:', args);
       }
     },
-    ping: {
-      description: 'A ping command!',
+    green: {
+      description: 'Prints your input text green',
       method: function (args) {
-        var count = 1
-        if (args.length > 1) {
-          count = parseInt(args[1])
+        if (args.length < 2) {
+          console.log('Please supply a string to print green as an argument.'.red)
+          return
         }
-        
-        for (var i = 0; i < count; i++) {
-          console.log('Pong!');
-        }
+
+        var text = args
+          .filter(function (arg, index) {
+            return index > 0
+          })
+          .reduce(function (previous, current, index) {
+            return (previous != '' ? previous.toString() + ' ' : '') + current.toString()
+          }, '')
+
+        console.log(colors.green(text))
       }
     }
   },
