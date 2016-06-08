@@ -32,12 +32,11 @@ function clinterface(commands, options) {
 
   _classCallCheck(this, clinterface);
 
-  if (!commands) {
-
-    return;
-  }
-
-  this.options = options || {};
+  this.options = Object.assign({
+    available: '⌨️  Available commands:',
+    bye: '🖖  Bye bye!',
+    prefix: '🤖 > '
+  }, options || {});
 
   // Create readline interface
   this.cmd = readline.createInterface({
@@ -47,44 +46,68 @@ function clinterface(commands, options) {
 
   // Get commands
   this.commands = commands || {};
+
+  // Create help command
   this.commands.help = {
     description: 'Shows all available commands.',
     method: function method(args) {
       if (args.length > 1 && args[1]) {
+        // If arg for command wanted is given.
+
         if (args[1] in _this.commands) {
+          // If argument is in commands
+
+          // Show command info
           var command = _this.commands[args[1]];
           console.log(args[1] + '\n   ' + command.description);
         } else {
+          // If argument is not in commands
           console.error('Command \'' + args[1] + '\' was not found. Try \'help\' for a list of commands.\n');
         }
       } else {
-        console.log(_this.options.available || '⌨️  Available commands:');
+        // If no arg for command is given
 
+        // Show available commands text
+        console.log(_this.options.available);
+
+        // Loop through all commands
         for (var commandKey in _this.commands) {
+
+          // Show command info
           var help = _this.commands[commandKey].description || 'No description specified.';
           console.log('   ' + commandKey.toString() + '  ' + help);
         }
       }
     }
   };
+
+  // Create exit command
   this.commands.exit = {
     description: 'Exits the process with code 0.',
     method: function method(args) {
+      // Get confirmation on exit
       _this.cmd.clearLine();
       _this.cmd.question("Confirm exit (y/n): ", function (answer) {
-        return answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i) ? process.exit(0) : _this.cmd.output.write(_this.options.prefix || '🤖 > ');
+        if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
+          console.log(_this.options.bye);
+          process.exit(0);
+        } else {
+          _this.cmd.output.write(_this.options.prefix);
+        }
       });
     }
   };
 
   // Set prompt
-  this.cmd.setPrompt(this.options.prefix || '🤖 > ', 2);
+  this.cmd.setPrompt(this.options.prefix, 2);
 
   // Called on line
   this.cmd.on('line', function (line) {
     // Remove linebreaks at end of commands and then split into arguments
     var args = line.replace(/\r?\n|\r/g, '').split(' ');
+
     if (args.length > 0 && args[0] in _this.commands) {
+      // If arguments arent empty and first argument is valid command
       _this.commands[args[0]].method(args);
     } else {
       // Command not found
@@ -93,12 +116,17 @@ function clinterface(commands, options) {
 
     _this.cmd.prompt();
   });
+
+  // On close, show exit message
   this.cmd.on('close', function () {
-    console.log(_this.options.bye || '🖖  Bye bye!');
+    console.log(_this.options.bye);
     return process.exit(0);
   });
+
+  // Display prompt
   this.cmd.prompt();
 
+  // LEGACY: works, dont touch... This function keeps the prompt at the bottom of the terminal window
   var privateLog = function privateLog(type, args) {
     var t = Math.ceil((_this.cmd.line.length + 3) / process.stdout.columns);
     var text = util.format.apply(console, args);
@@ -108,6 +136,7 @@ function clinterface(commands, options) {
     _this.cmd._refreshLine();
   };
 
+  // Write all log functions to use privateLog
   console.log = function () {
     privateLog("log", arguments);
   };
