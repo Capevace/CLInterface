@@ -1,6 +1,6 @@
 {
   "name": "clinterface",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "A very simple and small tool to have a command-line-interface usable at runtime.",
   "main": "index.js",
   "scripts": {
