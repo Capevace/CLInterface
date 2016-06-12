@@ -163,7 +163,7 @@ class clinterface {
       if (args.length > 0 && args[0] in this.commands) { // If arguments arent empty and first argument is valid command
         if (this.commands[args[0]].method)
           this.commands[args[0]].method(args)
-      } else { // Command not found
+      } else if (args[0] != '') { // Command not found
         this.echo(`\x1b[31mCommand '${args[0]}' was not found. Try 'help' for a list of commands.\n\x1b[0m`);
       }
 

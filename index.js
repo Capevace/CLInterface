@@ -186,7 +186,7 @@ var clinterface = function () {
       if (args.length > 0 && args[0] in _this.commands) {
         // If arguments arent empty and first argument is valid command
         if (_this.commands[args[0]].method) _this.commands[args[0]].method(args);
-      } else {
+      } else if (args[0] != '') {
         // Command not found
         _this.echo('\u001b[31mCommand \'' + args[0] + '\' was not found. Try \'help\' for a list of commands.\n\u001b[0m');
       }

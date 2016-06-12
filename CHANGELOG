@@ -1,5 +1,8 @@
+Version 1.x
+ - FIXED error message on empty command. Now skips error.
+
 Version 1.2.1
- - FIXED README.md 
+ - FIXED README.md
 
 Version 1.2.0
  - ADDED PROPOSALS
