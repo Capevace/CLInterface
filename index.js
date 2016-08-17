@@ -106,15 +106,17 @@ var clinterface = function () {
       description: 'Exits the process with code 0.',
       usage: 'exit',
       method: function method(args) {
-        // Get confirmation on exit
-        _this.cmd.clearLine();
-        _this.cmd.question("Confirm exit (y/n): ", function (answer) {
-          if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
-            _this.echo(_this.options.bye);
-            process.exit(0);
-          } else {
-            _this.cmd.output.write(_this.options.prefix);
-          }
+        return new Promise(function (resolve) {
+          // Get confirmation on exit
+          _this.cmd.clearLine();
+          _this.cmd.question("Confirm exit (y/n): ", function (answer) {
+            if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
+              _this.echo(_this.options.bye);
+              process.exit(0);
+            } else {
+              resolve();
+            }
+          });
         });
       }
     };
@@ -183,15 +185,37 @@ var clinterface = function () {
       // Remove linebreaks at end of commands and then split into arguments
       var args = line.replace(/\r?\n|\r/g, '').split(' ');
 
+      // Base promise is "resolved" so prompt gets triggered,
+      // if no other promise is returned
+      var promise = Promise.resolve();
+
       if (args.length > 0 && args[0] in _this.commands) {
         // If arguments arent empty and first argument is valid command
-        if (_this.commands[args[0]].method) _this.commands[args[0]].method(args);
+        if (_this.commands[args[0]].method) {
+          var returnedPromise = _this.commands[args[0]].method(args, _this.cmd);
+
+          // If function returns anything at all, we assume its a Promise
+          // TODO: Add proper Promise vaidation
+          if (returnedPromise) {
+            promise = returnedPromise;
+          }
+        }
       } else if (args[0] != '') {
         // Command not found
         _this.echo('\u001b[31mCommand \'' + args[0] + '\' was not found. Try \'help\' for a list of commands.\n\u001b[0m');
       }
 
-      _this.cmd.prompt();
+      promise.then(function () {
+        return _this.cmd.pause();
+      }).then(function () {
+        return _this.cmd.write('\n');
+      }).then(function () {
+        return _this.cmd.resume();
+      }).then(function () {
+        return _this.cmd.prompt();
+      }).catch(function () {
+        return _this.error('An error occured during the command.');
+      });
     });
 
     // On close, show exit message

@@ -93,15 +93,17 @@ class clinterface {
       description: 'Exits the process with code 0.',
       usage: 'exit',
       method: args => {
-        // Get confirmation on exit
-        this.cmd.clearLine();
-        this.cmd.question("Confirm exit (y/n): ", (answer) => {
-          if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
-            this.echo(this.options.bye)
-            process.exit(0)
-          } else {
-            this.cmd.output.write(this.options.prefix)
-          }
+        return new Promise((resolve) => {
+          // Get confirmation on exit
+          this.cmd.clearLine();
+          this.cmd.question("Confirm exit (y/n): ", (answer) => {
+            if (answer.match(/^o(ui)?$/i) || answer.match(/^y(es)?$/i)) {
+              this.echo(this.options.bye)
+              process.exit(0)
+            } else {
+              resolve();
+            }
+          });
         });
       }
     }
@@ -160,14 +162,30 @@ class clinterface {
       // Remove linebreaks at end of commands and then split into arguments
       const args = line.replace(/\r?\n|\r/g, '').split(' ')
 
+      // Base promise is "resolved" so prompt gets triggered,
+      // if no other promise is returned
+      let promise = Promise.resolve();
+
       if (args.length > 0 && args[0] in this.commands) { // If arguments arent empty and first argument is valid command
-        if (this.commands[args[0]].method)
-          this.commands[args[0]].method(args)
+        if (this.commands[args[0]].method) {
+          const returnedPromise = this.commands[args[0]].method(args, this.cmd)
+
+          // If function returns anything at all, we assume its a Promise
+          // TODO: Add proper Promise vaidation
+          if (returnedPromise) {
+            promise = returnedPromise;
+          }
+        }
       } else if (args[0] != '') { // Command not found
         this.echo(`\x1b[31mCommand '${args[0]}' was not found. Try 'help' for a list of commands.\n\x1b[0m`);
       }
 
-      this.cmd.prompt()
+      promise
+        .then(() => this.cmd.pause())
+        .then(() => this.cmd.write('\n'))
+        .then(() => this.cmd.resume())
+        .then(() => this.cmd.prompt())
+        .catch(() => this.error('An error occured during the command.'));
     })
 
     // On close, show exit message

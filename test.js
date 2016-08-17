@@ -39,8 +39,14 @@ var cli = new clinterface(
   'lol',
   {
     description: 'A lol command!',
-    method: function (args) {
-      console.log('Lol!');
+    method: function (args, rl) {
+      return new Promise((resolve, reject) => {
+        rl.write('Dat!');
+        setTimeout(() => {
+          rl.write('Finished!');
+          resolve();
+        }, 2000);
+      });
     }
   }
 )
